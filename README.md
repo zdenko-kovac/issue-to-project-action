@@ -55,17 +55,21 @@ Store it as a repository or organization secret (e.g. `PROJECT_TOKEN`) and refer
 
 ## Finding your Project Node ID
 
-Use the helper scripts from [issue-to-project-github-com](../issue-to-project-github-com/):
+Clone this repo and run the included helper scripts with a PAT that has `read:org` and `project` scopes:
 
 ```sh
-cd ../issue-to-project-github-com
 npm install
 GITHUB_TOKEN=<pat> GITHUB_ORG=<your-org> npm run list-projects
 ```
 
-Or filter by title:
+Filter by title:
 ```sh
 GITHUB_TOKEN=<pat> GITHUB_ORG=<your-org> npm run list-projects -- "My Board"
+```
+
+Inspect status fields and option IDs for a specific project:
+```sh
+GITHUB_TOKEN=<pat> GITHUB_ORG=<your-org> npm run list-project-statuses -- PVT_kwDOA...
 ```
 
 ## How it works
