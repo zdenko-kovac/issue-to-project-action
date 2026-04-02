@@ -1,0 +1,22 @@
+{
+  "name": "issue-to-project-action",
+  "version": "1.0.0",
+  "description": "GitHub Action: add newly opened issues to a GitHub ProjectV2",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/main.ts -o dist --source-map --license licenses.txt",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

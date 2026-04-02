@@ -1,0 +1,23 @@
+name: "Add Issue to Project"
+description: "Automatically add newly opened issues to a GitHub ProjectV2 board"
+author: "cs-devops"
+
+inputs:
+  project-node-id:
+    description: "ProjectV2 node ID (e.g. PVT_kwDOAbc123). Use the list-projects helper to find it."
+    required: true
+  github-token:
+    description: "Token with project write scope. The default GITHUB_TOKEN does NOT have project permissions — use a PAT or fine-grained token stored as a secret."
+    required: true
+
+outputs:
+  item-id:
+    description: "The node ID of the created project item"
+
+runs:
+  using: "node22"
+  main: "dist/index.js"
+
+branding:
+  icon: "plus-square"
+  color: "blue"
