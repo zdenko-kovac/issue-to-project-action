@@ -1,8 +1,19 @@
 import { graphql } from "@octokit/graphql";
 
-const LIST_PROJECTS_QUERY = `
-  query($org: String!, $after: String) {
-    organization(login: $org) {
+const ORG_PROJECTS_QUERY = `
+  query($login: String!, $after: String) {
+    organization(login: $login) {
+      projectsV2(first: 20, after: $after) {
+        nodes { id title number }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+`;
+
+const USER_PROJECTS_QUERY = `
+  query($login: String!, $after: String) {
+    user(login: $login) {
       projectsV2(first: 20, after: $after) {
         nodes { id title number }
         pageInfo { hasNextPage endCursor }
@@ -17,13 +28,9 @@ interface ProjectNode {
   number: number;
 }
 
-interface QueryResult {
-  organization: {
-    projectsV2: {
-      nodes: ProjectNode[];
-      pageInfo: { hasNextPage: boolean; endCursor: string | null };
-    };
-  };
+interface ProjectsPage {
+  nodes: ProjectNode[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
 }
 
 async function main(): Promise<void> {
@@ -36,14 +43,25 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  const login = process.env.GITHUB_ORG!;
   const client = graphql.defaults({
     headers: { authorization: `token ${process.env.GITHUB_TOKEN}` },
   });
 
+  // Detect whether the login is an org or user
+  let query = ORG_PROJECTS_QUERY;
+  let ownerType: "organization" | "user" = "organization";
+  try {
+    await client(ORG_PROJECTS_QUERY, { login, after: undefined });
+  } catch {
+    query = USER_PROJECTS_QUERY;
+    ownerType = "user";
+  }
+
   if (titleFilter) {
-    console.log(`Projects matching "${titleFilter}" in org: ${process.env.GITHUB_ORG}\n`);
+    console.log(`Projects matching "${titleFilter}" for ${ownerType}: ${login}\n`);
   } else {
-    console.log(`Projects in org: ${process.env.GITHUB_ORG}\n`);
+    console.log(`Projects for ${ownerType}: ${login}\n`);
   }
 
   console.log(["#", "Number", "Node ID", "Title"].join("\t"));
@@ -53,12 +71,13 @@ async function main(): Promise<void> {
   let row = 0;
 
   do {
-    const result: QueryResult = await client(LIST_PROJECTS_QUERY, {
-      org: process.env.GITHUB_ORG,
-      after: after ?? undefined,
-    });
+    const result = await client<Record<string, { projectsV2: ProjectsPage }>>(
+      query,
+      { login, after: after ?? undefined },
+    );
 
-    const { nodes, pageInfo } = result.organization.projectsV2;
+    const owner = result[ownerType];
+    const { nodes, pageInfo } = owner.projectsV2;
 
     for (const proj of nodes) {
       if (titleFilter && !proj.title.toLowerCase().includes(titleFilter.toLowerCase())) {

@@ -1,25 +1,45 @@
 import { graphql } from "@octokit/graphql";
 
-const LIST_PROJECTS_QUERY = `
-  query($org: String!, $after: String) {
-    organization(login: $org) {
+const FIELDS_FRAGMENT = `
+  fields(first: 50) {
+    nodes {
+      ... on ProjectV2SingleSelectField {
+        id
+        name
+        options {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+const ORG_PROJECTS_QUERY = `
+  query($login: String!, $after: String) {
+    organization(login: $login) {
       projectsV2(first: 20, after: $after) {
         nodes {
           id
           title
           number
-          fields(first: 50) {
-            nodes {
-              ... on ProjectV2SingleSelectField {
-                id
-                name
-                options {
-                  id
-                  name
-                }
-              }
-            }
-          }
+          ${FIELDS_FRAGMENT}
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+`;
+
+const USER_PROJECTS_QUERY = `
+  query($login: String!, $after: String) {
+    user(login: $login) {
+      projectsV2(first: 20, after: $after) {
+        nodes {
+          id
+          title
+          number
+          ${FIELDS_FRAGMENT}
         }
         pageInfo { hasNextPage endCursor }
       }
@@ -34,18 +54,7 @@ const GET_PROJECT_QUERY = `
         id
         title
         number
-        fields(first: 50) {
-          nodes {
-            ... on ProjectV2SingleSelectField {
-              id
-              name
-              options {
-                id
-                name
-              }
-            }
-          }
-        }
+        ${FIELDS_FRAGMENT}
       }
     }
   }
@@ -72,12 +81,23 @@ interface ProjectNode {
 }
 
 interface QueryResult {
-  organization: {
+  organization?: {
     projectsV2: {
       nodes: ProjectNode[];
       pageInfo: { hasNextPage: boolean; endCursor: string | null };
     };
   };
+  user?: {
+    projectsV2: {
+      nodes: ProjectNode[];
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    };
+  };
+}
+
+interface ProjectsPage {
+  nodes: ProjectNode[];
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
 }
 
 interface SingleProjectResult {
@@ -142,17 +162,30 @@ async function main(): Promise<void> {
 
     printProject(proj);
   } else {
-    console.log(`Projects and statuses in org: ${process.env.GITHUB_ORG}\n`);
+    const login = process.env.GITHUB_ORG!;
+
+    // Detect whether the login is an org or user
+    let query = ORG_PROJECTS_QUERY;
+    let ownerType: "organization" | "user" = "organization";
+    try {
+      await client(ORG_PROJECTS_QUERY, { login, after: undefined });
+    } catch {
+      query = USER_PROJECTS_QUERY;
+      ownerType = "user";
+    }
+
+    console.log(`Projects and statuses for ${ownerType}: ${login}\n`);
 
     let after: string | null = null;
 
     do {
-      const result: QueryResult = await client(LIST_PROJECTS_QUERY, {
-        org: process.env.GITHUB_ORG,
-        after: after ?? undefined,
-      });
+      const result = await client<Record<string, { projectsV2: ProjectsPage }>>(
+        query,
+        { login, after: after ?? undefined },
+      );
 
-      const { nodes, pageInfo } = result.organization.projectsV2;
+      const owner = result[ownerType];
+      const { nodes, pageInfo } = owner.projectsV2;
 
       for (const proj of nodes) {
         printProject(proj);
