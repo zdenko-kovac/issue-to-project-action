@@ -29,7 +29,7 @@ jobs:
 
 ### Org-wide (all repos)
 
-Create this same workflow file in your org's `.github` repository at `.github/workflows/issue-to-project.yml`. GitHub automatically applies it to every repo in the org.
+GitHub does **not** auto-apply workflows from the `.github` repo to other repos. To cover every repo in an org, push the workflow file to each repo individually (via the GitHub Contents API or a script) or use a GitHub App that listens for `issues.opened` events org-wide.
 
 ## Inputs
 
