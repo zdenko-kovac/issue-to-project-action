@@ -71,7 +71,7 @@ async function main(): Promise<void> {
   let row = 0;
 
   do {
-    const result = await client<Record<string, { projectsV2: ProjectsPage }>>(
+    const result: Record<string, { projectsV2: ProjectsPage }> = await client(
       query,
       { login, after: after ?? undefined },
     );
