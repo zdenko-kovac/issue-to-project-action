@@ -1,4 +1,4 @@
-name: "Add Issue to Project"
+name: "Add Issue to ProjectV2 Board"
 description: "Automatically add newly opened issues to a GitHub ProjectV2 board"
 author: "cs-devops"
 
