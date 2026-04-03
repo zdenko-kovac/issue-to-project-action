@@ -40,7 +40,16 @@ Preview what would change without writing anything:
 GITHUB_TOKEN=<pat> GITHUB_ORG=<your-org> PROJECT_NODE_ID=<id> DRY_RUN=1 npm run distribute-workflow
 ```
 
-The script skips archived/disabled repos and repos that already have the workflow up to date. It also accepts an optional `ACTION_REF` env var to override the action reference (defaults to `zdenko-kovac/issue-to-project-action@v1`).
+The script skips archived/disabled repos and repos that already have the workflow up to date.
+
+| Env var | Required | Description |
+|---|---|---|
+| `GITHUB_TOKEN` | yes | PAT with `repo` scope |
+| `GITHUB_ORG` | yes | Org or user account name |
+| `PROJECT_NODE_ID` | yes | ProjectV2 node ID |
+| `ACTION_REF` | no | Action reference (default: `zdenko-kovac/issue-to-project-action@v1`) |
+| `GHE_HOST` | no | GitHub Enterprise Server hostname (e.g. `github.example.com`) |
+| `DRY_RUN` | no | Set to `1` to preview without writing |
 
 ## Inputs
 

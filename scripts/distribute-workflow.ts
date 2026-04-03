@@ -37,6 +37,7 @@ Usage:
 
 Optional:
   ACTION_REF   Action reference (default: zdenko-kovac/issue-to-project-action@v1)
+  GHE_HOST     GitHub Enterprise hostname (e.g. github.example.com)
   DRY_RUN=1    Preview changes without writing`);
     process.exit(1);
   }
@@ -46,7 +47,11 @@ Optional:
   const actionRef = process.env.ACTION_REF ?? "zdenko-kovac/issue-to-project-action@v1";
   const dryRun = process.env.DRY_RUN === "1";
 
-  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  const gheHost = process.env.GHE_HOST;
+  const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+    ...(gheHost ? { baseUrl: `https://${gheHost}/api/v3` } : {}),
+  });
   const content = buildWorkflowContent(projectNodeId, actionRef);
   const encoded = Buffer.from(content).toString("base64");
 
@@ -56,7 +61,7 @@ Optional:
     console.log(content);
   }
 
-  console.log(`Distributing workflow to all repos in: ${org}`);
+  console.log(`Distributing workflow to all repos in: ${org}${gheHost ? ` (${gheHost})` : ""}`);
   console.log(`Project Node ID: ${projectNodeId}`);
   console.log(`Action ref: ${actionRef}\n`);
 
