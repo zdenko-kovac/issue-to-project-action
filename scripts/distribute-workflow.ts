@@ -60,18 +60,25 @@ Optional:
   console.log(`Project Node ID: ${projectNodeId}`);
   console.log(`Action ref: ${actionRef}\n`);
 
+  // Detect whether the login is an org or user
+  let isOrg = true;
+  try {
+    await octokit.orgs.get({ org });
+  } catch {
+    isOrg = false;
+  }
+
+  console.log(`Account type: ${isOrg ? "organization" : "user"}\n`);
+
   let page = 1;
   let created = 0;
   let updated = 0;
   let skipped = 0;
 
   while (true) {
-    const { data: repos } = await octokit.repos.listForOrg({
-      org,
-      type: "all",
-      per_page: 100,
-      page,
-    });
+    const { data: repos } = isOrg
+      ? await octokit.repos.listForOrg({ org, type: "all", per_page: 100, page })
+      : await octokit.repos.listForUser({ username: org, per_page: 100, page });
 
     if (repos.length === 0) break;
 
