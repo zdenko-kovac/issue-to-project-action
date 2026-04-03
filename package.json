@@ -7,7 +7,8 @@
     "build": "ncc build src/main.ts -o dist --source-map --license licenses.txt",
     "typecheck": "tsc --noEmit",
     "list-projects": "ts-node scripts/list-projects.ts",
-    "list-project-statuses": "ts-node scripts/list-project-statuses.ts"
+    "list-project-statuses": "ts-node scripts/list-project-statuses.ts",
+    "distribute-workflow": "ts-node scripts/distribute-workflow.ts"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@octokit/graphql": "^8.1.1",
+    "@octokit/rest": "^22.0.1",
     "@types/node": "^22.0.0",
     "@vercel/ncc": "^0.38.3",
     "ts-node": "^10.9.2",

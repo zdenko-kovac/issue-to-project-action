@@ -29,7 +29,18 @@ jobs:
 
 ### Org-wide (all repos)
 
-GitHub does **not** auto-apply workflows from the `.github` repo to other repos. To cover every repo in an org, push the workflow file to each repo individually (via the GitHub Contents API or a script) or use a GitHub App that listens for `issues.opened` events org-wide.
+GitHub does **not** auto-apply workflows from the `.github` repo to other repos. Use the included helper script to push the workflow to every repo in an org:
+
+```sh
+GITHUB_TOKEN=<pat> GITHUB_ORG=<your-org> PROJECT_NODE_ID=<id> npm run distribute-workflow
+```
+
+Preview what would change without writing anything:
+```sh
+GITHUB_TOKEN=<pat> GITHUB_ORG=<your-org> PROJECT_NODE_ID=<id> DRY_RUN=1 npm run distribute-workflow
+```
+
+The script skips archived/disabled repos and repos that already have the workflow up to date. It also accepts an optional `ACTION_REF` env var to override the action reference (defaults to `zdenko-kovac/issue-to-project-action@v1`).
 
 ## Inputs
 
