@@ -1,0 +1,14 @@
+name: Add issue to project
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: zdenko-kovac/issue-to-project-action@v1
+        with:
+          project-node-id: "PVT_kwHOB60KVM4AVITD"
+          github-token: ${{ secrets.PROJECT_TOKEN }}
