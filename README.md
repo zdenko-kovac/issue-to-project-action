@@ -21,7 +21,7 @@ jobs:
   add-to-project:
     runs-on: ubuntu-latest
     steps:
-      - uses: <owner>/issue-to-project-action@v1
+      - uses: zdenko-kovac/issue-to-project-action@v1
         with:
           project-node-id: "PVT_kwDOAbc123"
           github-token: ${{ secrets.PROJECT_TOKEN }}
