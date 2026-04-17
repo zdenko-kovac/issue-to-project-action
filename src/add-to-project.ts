@@ -12,6 +12,8 @@ export interface AddToProjectOptions {
   projectNodeId: string;
   issueNodeId: string;
   octokit: Octokit;
+  /** Base delay in ms for retry backoff. Defaults to 1000. */
+  baseDelayMs?: number;
 }
 
 export interface AddToProjectResult {
@@ -28,7 +30,7 @@ const NON_RETRYABLE_PATTERNS = [
   "not found",
 ];
 
-function isRetryable(err: Error): boolean {
+export function isRetryable(err: Error): boolean {
   const msg = err.message.toLowerCase();
   return !NON_RETRYABLE_PATTERNS.some((p) => msg.includes(p));
 }
@@ -64,6 +66,8 @@ export async function addIssueToProject(
       projectId: opts.projectNodeId,
       contentId: opts.issueNodeId,
     }),
+    MAX_RETRIES,
+    opts.baseDelayMs ?? BASE_DELAY_MS,
   );
 
   return { itemId: result.addProjectV2ItemById.item.id };

@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/main.ts -o dist --source-map --license licenses.txt",
+    "test": "node --require ts-node/register --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
     "list-projects": "ts-node scripts/list-projects.ts",
     "list-project-statuses": "ts-node scripts/list-project-statuses.ts",
